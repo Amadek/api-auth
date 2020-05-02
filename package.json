@@ -1,0 +1,24 @@
+{
+  "name": "api-auth",
+  "version": "0.0.1",
+  "description": "",
+  "main": "AuthController.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "amadek",
+  "license": "MIT",
+  "dependencies": {
+    "@amadek/js-sdk": "^1.1.3",
+    "axios": "^0.19.2",
+    "express": "^4.17.1",
+    "helmet": "^3.21.2",
+    "http-errors": "^1.7.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2",
+    "dotenv": "^8.2.0"
+  }
+}

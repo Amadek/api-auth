@@ -1,3 +1,5 @@
+# OAuth API
+
 API providing GitHub OAuth.
 
 routes:

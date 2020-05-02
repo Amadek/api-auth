@@ -1,25 +1,28 @@
 const Ensure = require('@amadek/js-sdk/Ensure');
-const axios = require('axios').default;
-const createError = require('http-errors');
+import axios from 'axios';
+import createError from 'http-errors';
+import { Config } from '../config';
 
-class AuthController {
-  constructor (config) {
+export class AuthController {
+  private _config: Config;
+
+  constructor (config: Config) {
     Ensure.notNull(config);
     this._config = config;
   }
 
-  route (router) {
+  route (router: any) {
     router.get('/', this.getAuth.bind(this));
     router.get('/redirect', this.getAuthRedirect.bind(this));
     return router;
   }
 
-  getAuth (req, res) {
-    const url = axios.getUri({
+  getAuth (req: any, res: any) {
+    const url: string = axios.getUri({
       method: 'get',
       url: 'https://github.com/login/oauth/authorize',
       params: {
-        client_id: this._config.api.github.clientId,
+        client_id: this._config.githubClientId,
         redirect_url: this._getBaseUrl(req) + '/redirect'
       }
     });
@@ -27,11 +30,11 @@ class AuthController {
     res.redirect(url);
   }
 
-  getAuthRedirect (req, res, next) {
+  getAuthRedirect (req: any, res: any, next: any) {
     // If code aka request token not provided, throw Bad Request.
-    if (!req.query.code) throw createError(400);
+    if (!req.query.code) throw createError[400];
 
-    const requestToken = req.query.code;
+    const requestToken: string = req.query.code;
 
     Promise.resolve()
       .then(() => this._getAccessToken(requestToken))
@@ -41,13 +44,13 @@ class AuthController {
       .catch(next);
   }
 
-  _getAccessToken (requestToken) {
+  _getAccessToken (requestToken: string) {
     return axios({
       method: 'post',
       url: 'https://github.com/login/oauth/access_token',
       params: {
-        client_id: this._config.api.github.clientId,
-        client_secret: this._config.api.github.clientSecret,
+        client_id: this._config.githubClientId,
+        client_secret: this._config.githubClientSecret,
         code: requestToken
       },
       headers: {
@@ -56,22 +59,20 @@ class AuthController {
     });
   }
 
-  _putAccessToken (accessToken) {
+  _putAccessToken (accessToken: string) {
     return Promise.resolve()
       .then(() => axios({
         method: 'put',
-        url: this._config.api.putTokenUrl,
+        url: this._config.putTokenUrl,
         params: {
-          client_secret: this._config.api.github.clientSecret,
+          client_secret: this._config.githubClientSecret,
           token: accessToken
         }
       }))
       .then(() => accessToken);
   }
 
-  _getBaseUrl (req) {
+  _getBaseUrl (req: any) {
     return req.headers.host + req.baseUrl;
   }
 }
-
-module.exports = AuthController;

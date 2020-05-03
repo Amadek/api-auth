@@ -5,20 +5,20 @@ import { Config } from '../config';
 import { Router } from 'express';
 
 export class AuthController {
-  private _config: Config;
+  private readonly _config: Config;
 
   constructor (config: Config) {
     Ensure.notNull(config);
     this._config = config;
   }
 
-  route (router: Router): Router {
+  public route (router: Router): Router {
     router.get('/', this.getAuth.bind(this));
     router.get('/redirect', this.getAuthRedirect.bind(this));
     return router;
   }
 
-  getAuth (req: any, res: any): void {
+  public getAuth (req: any, res: any): void {
     const url: string = axios.getUri({
       method: 'get',
       url: 'https://github.com/login/oauth/authorize',
@@ -31,7 +31,7 @@ export class AuthController {
     res.redirect(url);
   }
 
-  getAuthRedirect (req: any, res: any, next: any): void {
+  public getAuthRedirect (req: any, res: any, next: any): void {
     // If code aka request token not provided, throw Bad Request.
     if (!req.query.code) throw createError[400];
 
@@ -45,7 +45,7 @@ export class AuthController {
       .catch(next);
   }
 
-  _getAccessToken (requestToken: string): Promise<string> {
+  private _getAccessToken (requestToken: string): Promise<string> {
     return Promise.resolve()
       .then(() => axios({
         method: 'post',
@@ -62,7 +62,7 @@ export class AuthController {
     .then(response => response.data.access_token);
   }
 
-  _putAccessToken (accessToken: string): Promise<string> {
+  private _putAccessToken (accessToken: string): Promise<string> {
     return Promise.resolve()
       .then(() => axios({
         method: 'put',
@@ -75,7 +75,7 @@ export class AuthController {
       .then(() => accessToken);
   }
 
-  _getBaseUrl (req: any): string {
+  private _getBaseUrl (req: any): string {
     return req.headers.host + req.baseUrl;
   }
 }

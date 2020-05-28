@@ -1,25 +1,21 @@
-const Ensure = require('@amadek/js-sdk/Ensure');
-import axios from 'axios';
-import createError from 'http-errors';
+import { AxiosInstance } from 'axios';
+import { BadRequest } from 'http-errors';
 import { Config } from '../config';
-import { Router } from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 
 export class AuthController {
-  private readonly _config: Config;
 
-  constructor (config: Config) {
-    Ensure.notNull(config);
-    this._config = config;
-  }
+  public constructor (private readonly _axios: AxiosInstance, private readonly _config: Config) { }
 
-  public route (router: Router): Router {
+  public route (): Router {
+    const router: Router = express.Router();
     router.get('/', this.getAuth.bind(this));
     router.get('/redirect', this.getAuthRedirect.bind(this));
     return router;
   }
 
-  public getAuth (req: any, res: any): void {
-    const url: string = axios.getUri({
+  public getAuth (req: Request, res: Response): void {
+    const url: string = this._axios.getUri({
       method: 'get',
       url: 'https://github.com/login/oauth/authorize',
       params: {
@@ -31,9 +27,9 @@ export class AuthController {
     res.redirect(url);
   }
 
-  public getAuthRedirect (req: any, res: any, next: any): void {
+  public getAuthRedirect (req: Request, res: Response, next: NextFunction): void {
     // If code aka request token not provided, throw Bad Request.
-    if (!req.query.code) throw createError[400];
+    if (!req.query.code || typeof req.query.code !== 'string') throw new BadRequest();
 
     const requestToken: string = req.query.code;
 
@@ -47,9 +43,7 @@ export class AuthController {
 
   private _getAccessToken (requestToken: string): Promise<string> {
     return Promise.resolve()
-      .then(() => axios({
-        method: 'post',
-        url: 'https://github.com/login/oauth/access_token',
+      .then(() => this._axios.post('https://github.com/login/oauth/access_token', {
         params: {
           client_id: this._config.githubClientId,
           client_secret: this._config.githubClientSecret,
@@ -64,9 +58,7 @@ export class AuthController {
 
   private _putAccessToken (accessToken: string): Promise<string> {
     return Promise.resolve()
-      .then(() => axios({
-        method: 'put',
-        url: this._config.putTokenUrl,
+      .then(() => this._axios.put(this._config.putTokenUrl, {
         params: {
           client_secret: this._config.githubClientSecret,
           token: accessToken
@@ -75,7 +67,7 @@ export class AuthController {
       .then(() => accessToken);
   }
 
-  private _getBaseUrl (req: any): string {
+  private _getBaseUrl (req: Request): string {
     return req.headers.host + req.baseUrl;
   }
 }

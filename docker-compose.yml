@@ -1,12 +1,13 @@
-fuel-cost-api-auth:
-  container_name: fuel-cost-api-auth
-  build: ./
-  net: fuel-cost-net
-  ports:
-    - '8181:8181'
-  volumes:
-    - ./:/app
-  environment:
-    - NODE_ENV=development
-    - PORT=8181
-    - PUT_TOKEN_URL=http://fuel-cost-api:3000/token
+version: '3'
+services:
+  api:
+    container_name: api-auth
+    build: ./
+    ports:
+      - '8181:8181'
+    volumes:
+      - ./:/app
+    environment:
+      - NODE_ENV=development
+      - PORT=8181
+      - PUT_TOKEN_URL=http://the-other-api/token

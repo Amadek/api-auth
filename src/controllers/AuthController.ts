@@ -44,11 +44,10 @@ export class AuthController {
   private _getAccessToken (requestToken: string): Promise<string> {
     return Promise.resolve()
       .then(() => this._axios.post('https://github.com/login/oauth/access_token', {
-        params: {
-          client_id: this._config.githubClientId,
-          client_secret: this._config.githubClientSecret,
-          code: requestToken
-        },
+        client_id: this._config.githubClientId,
+        client_secret: this._config.githubClientSecret,
+        code: requestToken
+      }, {
         headers: {
           accept: 'application/json'
         }

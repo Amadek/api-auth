@@ -58,10 +58,8 @@ export class AuthController {
   private _putAccessToken (accessToken: string): Promise<string> {
     return Promise.resolve()
       .then(() => this._axios.put(this._config.putTokenUrl, {
-        params: {
-          client_secret: this._config.githubClientSecret,
-          token: accessToken
-        }
+        client_secret: this._config.githubClientSecret,
+        token: accessToken
       }))
       .then(() => accessToken);
   }
